@@ -3,7 +3,7 @@
 
 int OnInit()
   {
-   EventSetTimer(10);
+   EventSetTimer(600);
    ChartSetInteger(0,CHART_AUTOSCROLL,false);
    ChartSetInteger(0,CHART_SHIFT,false);
    ChartSetInteger(0,CHART_MODE,CHART_CANDLES);
@@ -18,15 +18,21 @@ void OnDeinit(const int reason)
 void OnTick()
   {}
 
-void OnTimer()
-  {
+void OnTimer() {
    ChartSetInteger(0,CHART_SCALE,0,3);
    ChartNavigate(0,CHART_END,0);
-   if(ChartScreenShot(0,_Symbol + ".jpg",WIDTH,HEIGHT))
-      {
+   int length = StringLen(_Symbol);
+   string hexOfSymbol;
+   string symbol;
+   for(int i = 0 ; i< length; i++) {
+     symbol= StringSubstr(_Symbol,i,1);
+     ushort b = StringGetCharacter(symbol,0);
+     hexOfSymbol +=""+ StringFormat("%x", b);
+   }
+   Print("hex of " + _Symbol + " is " + hexOfSymbol);
+   if(ChartScreenShot(0,hexOfSymbol + ".jpg",WIDTH,HEIGHT)) {
         Print("We've saved the screenshot ");
-        if(!SendFTP(_Symbol + ".jpg"))
-        {
+        if(!SendFTP(hexOfSymbol + ".jpg")) {
           Print("error ",GetLastError());
         }
       }
