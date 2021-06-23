@@ -4,28 +4,35 @@
 void screenshotFromChart(long chartId, string symbolName) {
   ChartSetInteger(chartId,CHART_SCALE,0,3);
   ChartNavigate(chartId,CHART_END,0);
+  ChartSetInteger(chartId,CHART_AUTOSCROLL,false);
+  ChartSetInteger(chartId,CHART_SHIFT,false);
+  ChartSetInteger(chartId,CHART_MODE,CHART_CANDLES);
   int length = StringLen(symbolName);
   string hexOfSymbol;
   string symbol;
   for(int i = 0 ; i< length; i++) {
-    symbol= StringSubstr(symbolNameToScreenshot,i,1);
+    symbol= StringSubstr(symbolName,i,1);
     ushort b = StringGetCharacter(symbol,0);
     hexOfSymbol +=""+ StringFormat("%x", b);
   }
   if(ChartScreenShot(chartId,hexOfSymbol + ".jpg",WIDTH,HEIGHT)) {
-    Print("We've saved the screenshot ");
+    Print("We've saved the screenshot of ", symbolName, " ID: ", chartId);
     if(!SendFTP(hexOfSymbol + ".jpg")) {
        Print("error ",GetLastError());
     }
   }
 }
 
+bool isOpened(string &openedCharts[], int numberOfOpneCharts, string symbolName){
+  for (int i = 0; i < numberOfOpneCharts; i++) {
+    if (symbolName == openedCharts[i]) return true;
+  }
+  return false;
+}
+
 int OnInit()
   {
    EventSetTimer(20);
-   ChartSetInteger(0,CHART_AUTOSCROLL,false);
-   ChartSetInteger(0,CHART_SHIFT,false);
-   ChartSetInteger(0,CHART_MODE,CHART_CANDLES);
    Print("Preparation of the Expert Advisor is completed");
    return(INIT_SUCCEEDED);
   }
@@ -40,15 +47,23 @@ void OnTick()
 void OnTimer() {
    long currChart=ChartFirst();
    int i=0,limit=100;
+   string openedCharts[100];
    while(i<limit) {
-     screenshotFromChart(currChart, ChartSymbol(prevChart));
+     openedCharts[i] = ChartSymbol(currChart);
+     screenshotFromChart(currChart, ChartSymbol(currChart));
      currChart = ChartNext(currChart);
      if(currChart<0) break;
      i++;
    }
    int numberOfOpneCharts = i + 1;
+   long chartId;
+   string symbolName;
    if (numberOfOpneCharts >= 100) return;
-   for(int i=0;i<SymbolsTotal(1);i++) {
-     screenshotFromChart(ChartOpen(SymbolName(i,1),0), SymbolName(i,1));
+   for(int j=0;j<SymbolsTotal(1);j++) {
+     symbolName = SymbolName(j,1);
+     if (isOpened(openedCharts, numberOfOpneCharts, symbolName)) continue;
+     chartId = ChartOpen(symbolName,0);
+     screenshotFromChart(chartId, symbolName);
+     ChartClose(chartId);
    }
 }
