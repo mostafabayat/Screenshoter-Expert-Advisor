@@ -1,9 +1,28 @@
 #define        WIDTH  1366
 #define        HEIGHT 768
 
+void screenshotFromChart(long chartId, string symbolName) {
+  ChartSetInteger(chartId,CHART_SCALE,0,3);
+  ChartNavigate(chartId,CHART_END,0);
+  int length = StringLen(symbolName);
+  string hexOfSymbol;
+  string symbol;
+  for(int i = 0 ; i< length; i++) {
+    symbol= StringSubstr(symbolNameToScreenshot,i,1);
+    ushort b = StringGetCharacter(symbol,0);
+    hexOfSymbol +=""+ StringFormat("%x", b);
+  }
+  if(ChartScreenShot(chartId,hexOfSymbol + ".jpg",WIDTH,HEIGHT)) {
+    Print("We've saved the screenshot ");
+    if(!SendFTP(hexOfSymbol + ".jpg")) {
+       Print("error ",GetLastError());
+    }
+  }
+}
+
 int OnInit()
   {
-   EventSetTimer(600);
+   EventSetTimer(20);
    ChartSetInteger(0,CHART_AUTOSCROLL,false);
    ChartSetInteger(0,CHART_SHIFT,false);
    ChartSetInteger(0,CHART_MODE,CHART_CANDLES);
@@ -19,21 +38,17 @@ void OnTick()
   {}
 
 void OnTimer() {
-   ChartSetInteger(0,CHART_SCALE,0,3);
-   ChartNavigate(0,CHART_END,0);
-   int length = StringLen(_Symbol);
-   string hexOfSymbol;
-   string symbol;
-   for(int i = 0 ; i< length; i++) {
-     symbol= StringSubstr(_Symbol,i,1);
-     ushort b = StringGetCharacter(symbol,0);
-     hexOfSymbol +=""+ StringFormat("%x", b);
+   long currChart=ChartFirst();
+   int i=0,limit=100;
+   while(i<limit) {
+     screenshotFromChart(currChart, ChartSymbol(prevChart));
+     currChart = ChartNext(currChart);
+     if(currChart<0) break;
+     i++;
    }
-   Print("hex of " + _Symbol + " is " + hexOfSymbol);
-   if(ChartScreenShot(0,hexOfSymbol + ".jpg",WIDTH,HEIGHT)) {
-        Print("We've saved the screenshot ");
-        if(!SendFTP(hexOfSymbol + ".jpg")) {
-          Print("error ",GetLastError());
-        }
-      }
-  }
+   int numberOfOpneCharts = i + 1;
+   if (numberOfOpneCharts >= 100) return;
+   for(int i=0;i<SymbolsTotal(1);i++) {
+     screenshotFromChart(ChartOpen(SymbolName(i,1),0), SymbolName(i,1));
+   }
+}
