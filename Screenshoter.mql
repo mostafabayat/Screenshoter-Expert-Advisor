@@ -1,0 +1,46 @@
+#define        WIDTH  1366    // Image width to call ChartScreenShot()
+#define        HEIGHT 768     // Image height to call ChartScreenShot()
+
+int OnInit()
+  {
+//--- create timer
+   EventSetTimer(10);
+//--- Disable chart autoscroll
+   ChartSetInteger(0,CHART_AUTOSCROLL,false);
+//--- Set the shift of the right edge of the chart
+   ChartSetInteger(0,CHART_SHIFT,true);
+//--- Show a candlestick chart
+   ChartSetInteger(0,CHART_MODE,CHART_CANDLES);
+//---
+   Print("Preparation of the Expert Advisor is completed");
+
+//---
+   return(INIT_SUCCEEDED);
+  }
+//+------------------------------------------------------------------+
+//| Expert deinitialization function                                 |
+//+------------------------------------------------------------------+
+void OnDeinit(const int reason)
+  {
+//--- destroy timer
+   EventKillTimer();
+
+  }
+//+------------------------------------------------------------------+
+//| Expert tick function                                             |
+//+------------------------------------------------------------------+
+void OnTick()
+  {
+//---
+
+  }
+//+------------------------------------------------------------------+
+//| Timer function                                                   |
+//+------------------------------------------------------------------+
+void OnTimer()
+  {
+
+   if(ChartScreenShot(0,_Symbol + ".jpg",WIDTH,HEIGHT))
+               Print("We've saved the screenshot ");
+  }
+//+------------------------------------------------------------------+
