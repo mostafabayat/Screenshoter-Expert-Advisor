@@ -32,7 +32,7 @@ bool isOpened(string &openedCharts[], int numberOfOpneCharts, string symbolName)
 
 int OnInit()
   {
-   EventSetTimer(20);
+   EventSetTimer(3600);
    Print("Preparation of the Expert Advisor is completed");
    return(INIT_SUCCEEDED);
   }
