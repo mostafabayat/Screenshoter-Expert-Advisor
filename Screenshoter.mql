@@ -1,12 +1,21 @@
+#property description "\"period\" parameter determines how often to take a screenshot, set to 0 to disable timer and work with button manually."
+#property description "if you want to disable screenshot from marketwatch symboles set its parameter to false, screen shot from all market watch symboles may be interruptive!"
+#property description "because for every symboles that its chart isn't open, EA open a chart and then close it."
+
 #define        WIDTH  1366
 #define        HEIGHT 768
+input int      period=3600;
+input bool     allMarketWatch=false;
 
-void screenshotFromChart(long chartId, string symbolName) {
+void configChart(long chartId) {
   ChartSetInteger(chartId,CHART_SCALE,0,3);
   ChartNavigate(chartId,CHART_END,0);
   ChartSetInteger(chartId,CHART_AUTOSCROLL,false);
   ChartSetInteger(chartId,CHART_SHIFT,false);
   ChartSetInteger(chartId,CHART_MODE,CHART_CANDLES);
+}
+
+void screenshotFromChart(long chartId, string symbolName) {
   int length = StringLen(symbolName);
   string hexOfSymbol;
   string symbol;
@@ -30,19 +39,15 @@ bool isOpened(string &openedCharts[], int numberOfOpneCharts, string symbolName)
   return false;
 }
 
-int OnInit()
-  {
-   EventSetTimer(3600);
+int OnInit() {
+   EventSetTimer(period);
    Print("Preparation of the Expert Advisor is completed");
    return(INIT_SUCCEEDED);
   }
 
-void OnDeinit(const int reason)
-  {
+void OnDeinit(const int reason) {
    EventKillTimer();
   }
-void OnTick()
-  {}
 
 void OnTimer() {
    long currChart=ChartFirst();
@@ -55,15 +60,19 @@ void OnTimer() {
      if(currChart<0) break;
      i++;
    }
-   int numberOfOpneCharts = i + 1;
-   long chartId;
-   string symbolName;
-   if (numberOfOpneCharts >= 100) return;
-   for(int j=0;j<SymbolsTotal(1);j++) {
-     symbolName = SymbolName(j,1);
-     if (isOpened(openedCharts, numberOfOpneCharts, symbolName)) continue;
-     chartId = ChartOpen(symbolName,0);
-     screenshotFromChart(chartId, symbolName);
-     ChartClose(chartId);
+   if (allMarketWatch) {
+     int numberOfOpneCharts = i + 1;
+     long chartId;
+     string symbolName;
+     if (numberOfOpneCharts >= 100) return;
+     for(int j=0;j<SymbolsTotal(1);j++) {
+       symbolName = SymbolName(j,1);
+       if (isOpened(openedCharts, numberOfOpneCharts, symbolName)) continue;
+       chartId = ChartOpen(symbolName,0);
+       configChart(chartId);
+       Sleep(1000);
+       screenshotFromChart(chartId, symbolName);
+       ChartClose(chartId);
+     }
    }
 }
