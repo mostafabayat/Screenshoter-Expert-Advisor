@@ -40,13 +40,27 @@ bool isOpened(string &openedCharts[], int numberOfOpneCharts, string symbolName)
 }
 
 int OnInit() {
-   EventSetTimer(period);
    Print("Preparation of the Expert Advisor is completed");
+   string name = "screenshot";
+   ObjectCreate(ChartID(),name,OBJ_BUTTON,0,0,0);
+   ObjectSetInteger(ChartID(),name,OBJPROP_XDISTANCE,0);
+   ObjectSetInteger(ChartID(),name,OBJPROP_YDISTANCE,20);
+   ObjectSetInteger(ChartID(),name,OBJPROP_XSIZE,100);
+   ObjectSetInteger(ChartID(),name,OBJPROP_YSIZE,28);
+   ObjectSetString(ChartID(),name,OBJPROP_TEXT,name);
+   ObjectSetString(ChartID(),name,OBJPROP_FONT,"Arial");
+   ObjectSetInteger(ChartID(),name,OBJPROP_FONTSIZE,10);
+   ObjectSetInteger(ChartID(),name,OBJPROP_COLOR,clrBlack);
+   ObjectSetInteger(ChartID(),name,OBJPROP_BGCOLOR,C'236,233,216');
+   ObjectSetInteger(ChartID(),name,OBJPROP_BACK,false);
+   ChartRedraw(ChartID());
+   if (period != 0) EventSetTimer(period);
    return(INIT_SUCCEEDED);
   }
 
 void OnDeinit(const int reason) {
-   EventKillTimer();
+   if (period != 0) EventKillTimer();
+   ObjectDelete(ChartID(), "screenshot");
   }
 
 void OnTimer() {
@@ -75,4 +89,11 @@ void OnTimer() {
        ChartClose(chartId);
      }
    }
+}
+
+void OnChartEvent(const int id, const long &lparam, const double &dparam, const string &sparam) {
+   if(id==CHARTEVENT_OBJECT_CLICK) {
+      Print("The mouse has been clicked on the object with name '"+sparam+"'");
+      screenshotFromChart(ChartID(), _Symbol);
+   }   
 }
