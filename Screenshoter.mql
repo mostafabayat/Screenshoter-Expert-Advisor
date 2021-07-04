@@ -24,7 +24,9 @@ void screenshotFromChart(long chartId, string symbolName) {
     ushort b = StringGetCharacter(symbol,0);
     hexOfSymbol +=""+ StringFormat("%x", b);
   }
+  if (chartId == ChartID()) ObjectDelete(chartId, "screenshot");
   if(ChartScreenShot(chartId,hexOfSymbol + ".jpg",WIDTH,HEIGHT)) {
+    if (chartId == ChartID()) createButton(ChartID(), "screenshot");
     Print("We've saved the screenshot of ", symbolName, " ID: ", chartId);
     if(!SendFTP(hexOfSymbol + ".jpg")) {
        Print("error ",GetLastError());
@@ -97,9 +99,7 @@ void OnTimer() {
 void OnChartEvent(const int id, const long &lparam, const double &dparam, const string &sparam) {
    if(id==CHARTEVENT_OBJECT_CLICK) {
       Print("The mouse has been clicked on the object with name '"+sparam+"'");
-      ObjectDelete(ChartID(), "screenshot");
       configChart(ChartID());
       screenshotFromChart(ChartID(), _Symbol);
-      createButton(ChartID(), "screenshot");
    }   
 }
