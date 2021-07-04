@@ -39,21 +39,24 @@ bool isOpened(string &openedCharts[], int numberOfOpneCharts, string symbolName)
   return false;
 }
 
+void createButton(long chartId, string buttonName) {
+  ObjectCreate(chartId, buttonName, OBJ_BUTTON,0,0,0);
+  ObjectSetInteger(chartId, buttonName, OBJPROP_XDISTANCE,0);
+  ObjectSetInteger(chartId, buttonName, OBJPROP_YDISTANCE,20);
+  ObjectSetInteger(chartId, buttonName, OBJPROP_XSIZE,100);
+  ObjectSetInteger(chartId, buttonName, OBJPROP_YSIZE,28);
+  ObjectSetString(chartId, buttonName, OBJPROP_TEXT,buttonName);
+  ObjectSetString(chartId, buttonName, OBJPROP_FONT,"Arial");
+  ObjectSetInteger(chartId, buttonName, OBJPROP_FONTSIZE,10);
+  ObjectSetInteger(chartId, buttonName, OBJPROP_COLOR,clrBlack);
+  ObjectSetInteger(chartId, buttonName, OBJPROP_BGCOLOR,C'236,233,216');
+  ObjectSetInteger(chartId, buttonName, OBJPROP_BACK,false);
+  ChartRedraw(chartId);
+}
+
 int OnInit() {
    Print("Preparation of the Expert Advisor is completed");
-   string name = "screenshot";
-   ObjectCreate(ChartID(),name,OBJ_BUTTON,0,0,0);
-   ObjectSetInteger(ChartID(),name,OBJPROP_XDISTANCE,0);
-   ObjectSetInteger(ChartID(),name,OBJPROP_YDISTANCE,20);
-   ObjectSetInteger(ChartID(),name,OBJPROP_XSIZE,100);
-   ObjectSetInteger(ChartID(),name,OBJPROP_YSIZE,28);
-   ObjectSetString(ChartID(),name,OBJPROP_TEXT,name);
-   ObjectSetString(ChartID(),name,OBJPROP_FONT,"Arial");
-   ObjectSetInteger(ChartID(),name,OBJPROP_FONTSIZE,10);
-   ObjectSetInteger(ChartID(),name,OBJPROP_COLOR,clrBlack);
-   ObjectSetInteger(ChartID(),name,OBJPROP_BGCOLOR,C'236,233,216');
-   ObjectSetInteger(ChartID(),name,OBJPROP_BACK,false);
-   ChartRedraw(ChartID());
+   createButton(ChartID(), "screenshot");
    if (period != 0) EventSetTimer(period);
    return(INIT_SUCCEEDED);
   }
@@ -94,6 +97,9 @@ void OnTimer() {
 void OnChartEvent(const int id, const long &lparam, const double &dparam, const string &sparam) {
    if(id==CHARTEVENT_OBJECT_CLICK) {
       Print("The mouse has been clicked on the object with name '"+sparam+"'");
+      ObjectDelete(ChartID(), "screenshot");
+      configChart(ChartID());
       screenshotFromChart(ChartID(), _Symbol);
+      createButton(ChartID(), "screenshot");
    }   
 }
