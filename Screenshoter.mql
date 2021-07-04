@@ -16,6 +16,7 @@ void configChart(long chartId) {
 }
 
 void screenshotFromChart(long chartId, string symbolName) {
+  configChart(chartId);
   int length = StringLen(symbolName);
   string hexOfSymbol;
   string symbol;
@@ -99,7 +100,6 @@ void OnTimer() {
 void OnChartEvent(const int id, const long &lparam, const double &dparam, const string &sparam) {
    if(id==CHARTEVENT_OBJECT_CLICK) {
       Print("The mouse has been clicked on the object with name '"+sparam+"'");
-      configChart(ChartID());
       screenshotFromChart(ChartID(), _Symbol);
    }   
 }
