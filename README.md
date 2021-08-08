@@ -1,6 +1,8 @@
 # Screenshoter-Expert-Advisor
 An Expert Advisor for MetaTrader in mql5 language to screenshot from all symbols in market watch and send them via ftp
 
+Using this EA you can take screenshot from a chart manually or set a timer (set period input that specifies how often the timer is activated) to screenshot from all open charts automatically. to take screenshot from all Market Watch symbols set allMarketWatch input to true.
+
 ## Import Expert Advisor in MetaTrader
 1. Download `Screenshoter.ex5`
 2. Open Data Folder
